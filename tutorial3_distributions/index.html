@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Interactive Data Visualization Tutorial 3</title>
+    <title> Interactive Data Visualization Tutorial 3 </title>
     <meta charset="utf-8">
     <style>
     body { margin: 0; border: 0; overflow: hidden; }
     svg { }
-    .axis path {
+    .axis path, .axis line {
       fill: none;
       stroke: black;
     }
     .axis line {
-    	fill: none;
-    	stroke: rgba(0,0,0,0.2);
     	stroke-width: 0.4px;
     } 
     .axis text {
@@ -21,8 +19,12 @@
     }
     text {
       font-family: sans-serif;
-      font-size: 8px;
+      font-size: 11px;
       opacity: 0.7;
+      cursor: default;
+    }
+    .label {
+      cursor: pointer;
     }
     </style>
   </head>
@@ -34,8 +36,8 @@ var height = document.documentElement.clientHeight,
     width = document.documentElement.clientWidth,
     margin = ({top: 20, right: 48, bottom: 30, left: 48});
 
-var x_scale = d3.scaleSymlog().range([margin.left, width-margin.right]),
-    y_scale = d3.scaleSymlog().range([height-margin.bottom, margin.top]);
+var x_scale = d3.scaleLog().range([margin.left, width-margin.right]),
+    y_scale = d3.scaleLog().range([height-margin.bottom, margin.top]);
 
 var svg = d3.select("body").append("svg")
 		.attr("viewBox", "0 0 " + width + " " + height);
@@ -79,6 +81,7 @@ Promise.all(files.map(url => d3.json(url))).then(function(values) {
 
 
     country_g.append("text")
+    	.classed("label", true)
       .attr("x", function(d) { 
         if (d["export_val_2010"]) {
           return x_scale(d["export_val_2010"]);
@@ -100,7 +103,7 @@ Promise.all(files.map(url => d3.json(url))).then(function(values) {
 
     var x_axis = d3.axisTop()
       .scale(x_scale)
-      .ticks(2048)
+      .ticks(16)
       .tickFormat(function(d) {
       	var logx = Math.log(d) / Math.LN10;
         return Math.abs(Math.round(logx) - logx) < 1e-6 ? "10" + formatPower(Math.round(Math.log(d) / Math.LN10)) : "";
@@ -108,7 +111,7 @@ Promise.all(files.map(url => d3.json(url))).then(function(values) {
 
     var y_axis = d3.axisLeft()
       .scale(y_scale)
-      .ticks(2048)
+      .ticks(16)
       .tickFormat(function(d) {
       	var logy = Math.log(d) / Math.LN10;
         return Math.abs(Math.round(logy) - logy) < 1e-6 ? "10" + formatPower(Math.round(Math.log(d) / Math.LN10)) : "";
@@ -125,34 +128,6 @@ Promise.all(files.map(url => d3.json(url))).then(function(values) {
       .call(y_axis);
 
 });
-
-/*
-d3.json("https://oec.world/attr/country/", function(country_error, countries) {
-  if (country_error) return console.arn(country_error);
-  countries.data.forEach(function(d) {
-    country_attrs[d.id] = d;
-  });
-});
-
-d3.json("https://oec.world/hs/export/2011/show/all/all/", function(error_2011, json_2011) {
-  if (error_2011) return console.warn(error_2011);
-  json_2011.data.forEach(function(d) {
-    data[d.origin_id] = {
-      "export_val_2011": d.export_val,
-      "id": d.origin_id
-    }
-  });
-
-  d3.json("https://oec.world/hs/export/2010/show/all/all/", function(error_2010, json_2010) {
-    if (error_2010) return console.warn(error_2010);
-    json_2010.data.forEach(function(d) {
-      if(data[d.origin_id]) {
-        data[d.origin_id]["export_val_2010"] = d.export_val
-      }
-    });
-
-    console.log(data);
-*/
 
 /* OUT
     country_g.append("circle")
